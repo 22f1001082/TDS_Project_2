@@ -4,3 +4,4 @@
 *.toml
 .venv
 .venv/
+*.lock
