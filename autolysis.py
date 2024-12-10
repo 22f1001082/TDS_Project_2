@@ -1,14 +1,14 @@
-    # /// script
-    # requires-python = ">=3.12"
-    # dependencies = [
-    #     "chardet",
-    #     "matplotlib",
-    #     "pandas",
-    #     "python-dotenv",
-    #     "requests",
-    #     "seaborn",
-    # ]
-    # ///
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "chardet",
+#     "matplotlib",
+#     "pandas",
+#     "python-dotenv",
+#     "requests",
+#     "seaborn",
+# ]
+# ///
 
 
 import os
