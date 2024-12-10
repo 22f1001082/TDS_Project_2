@@ -208,6 +208,15 @@ def data_story(df):
     except Exception as e:
         print(e)
         return None
+    
+def recommended_analysis(df):
+    columns = df.columns
+    try:
+        analysis_recommendation = llm(f"Suppose a data analyst is trying to analyze a dataset with the following summary statistics: {columns}. What analysis should the analyst perform to gain insights from the data? Return a list of 10 analysis recommendations.")
+        return analysis_recommendation
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 
 def create_md(filename):
@@ -216,6 +225,7 @@ def create_md(filename):
     ai_summary, summary_stats, missing_table, duplicate_rows, outlier_counts = generic_analysis(df)  
     outlier_files = plot_outliers(df, folder_path)
     heatmap_file = generate_correlation_heatmap(df, folder_path)
+    analysis_recommendation = recommended_analysis(df)
     story = data_story(df)
     with open(f"{os.path.join(folder_path, "README.md")}", "w") as f:
         f.write(f"# {file_name.title()} Dataset Analysis \n")
@@ -238,6 +248,8 @@ def create_md(filename):
         f.write(' \n')
         f.write("## Correlation Heatmap\n")
         f.write(f"\n![alt_text]({heatmap_file})\n")
+        f.write("## Analysis Recommendations\n")
+        f.write(f"{analysis_recommendation}\n")
         f.write("## Data Story\n")
         f.write(f"{story}\n")
     os.remove(file_path)
