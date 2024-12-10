@@ -265,4 +265,5 @@ if __name__ == "__main__":
         create_md(filename[0])
     else:
         for file in filename:
-            create_md(file)
+            if file[-4:] == ".csv":
+                create_md(file)
