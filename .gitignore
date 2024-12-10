@@ -4,5 +4,5 @@
 *.toml
 .venv
 .venv/
-
+*.lock
 *.csv
