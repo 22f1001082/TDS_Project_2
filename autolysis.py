@@ -26,14 +26,13 @@ load_dotenv()
 
 def llm(message):
     AI_TOKEN = os.getenv("AIPROXY_TOKEN")
-    headers = {"Authorization": f"Bearer {AI_TOKEN}", "Content-Type": "application/json"}  # noqa
+    headers = {"Authorization": f"Bearer {AI_TOKEN}", "Content-Type": "application/json"}  
     data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": message}]
     }
     try:
-        response = requests.post(
-            "https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
         response_json = response.json()
         return response_json["choices"][0]["message"]["content"]
     except Exception as e:
@@ -42,10 +41,6 @@ def llm(message):
 
 
 def configure_folder(filename):
-    """
-    Configures the folder structure for a given filename.
-    Creates a folder with the same name as the filename (without extension) and copies the file into it.
-    """
     folder_name = os.path.splitext(filename)[0]
     source_path = os.path.join(os.getcwd(), filename)
     folder_path = os.path.join(os.getcwd(), folder_name)
@@ -82,12 +77,9 @@ def read_file(file_path):
 
 
 def data_description(df):
-    """
-    Genrates a description of the columns using the LLM and a dictionary of summary statistics.
-    """
     cols = df.columns
     try:
-        ai_summary = llm(f"There is a pandas dataframe with the following columns: {cols}. Briefly describe the dataset? Do not give any headings in the response.")  # noqa
+        ai_summary = llm(f"There is a pandas dataframe with the following columns: {cols}. Briefly describe the dataset? Do not give any headings in the response.")  
         summary_stats = df.describe()
         summary_stats = summary_stats.to_dict()
 
@@ -98,8 +90,7 @@ def data_description(df):
         rows = []
         for stat in stats:
             row = [stat] + [
-                f"{summary_stats[metric].get(stat, ''):.3f}" if isinstance(
-                    summary_stats[metric].get(stat), (int, float)) else summary_stats[metric].get(stat, '')
+                f"{summary_stats[metric].get(stat, ''):.3f}" if isinstance(summary_stats[metric].get(stat), (int, float)) else summary_stats[metric].get(stat, '')
                 for metric in metrics
             ]
             rows.append(row)
@@ -115,17 +106,6 @@ def data_description(df):
 
 
 def count_outliers(df):
-    """
-    Counts outliers in numeric columns of a DataFrame.
-
-    Args:
-        df: The input DataFrame.
-        numeric_cols: A list of column names representing numeric columns.
-
-    Returns:
-        A dictionary with column names as keys and outlier counts as values.
-        Returns an empty dictionary if numeric_cols is empty or not a list.
-    """
     numeric_cols = df.select_dtypes(
         include=["int64", "float64"]).columns.tolist()
 
@@ -184,7 +164,7 @@ def generic_analysis(df):
     missing_table += "|--------|------------|----------------------|\n"
     # Iterate over rows in the null_summary DataFrame and add to the table
     for column, row in null_summary.iterrows():
-        missing_table += f"| {column} | {row['Missing Count']} | {row['Missing Percentage (%)']:.2f} |\n"  # noqa
+        missing_table += f"| {column} | {row['Missing Count']} | {row['Missing Percentage (%)']:.2f} |\n"  
 
     duplicate_rows = df.duplicated().sum()
     outlier_counts = count_outliers(df)
@@ -193,20 +173,12 @@ def generic_analysis(df):
 
 
 def generate_correlation_heatmap(df, output_dir, output_file='correlation_heatmap.png'):
-    """
-    Generates a correlation heatmap from a pandas DataFrame and saves it as a PNG file.
-
-    Parameters:
-    - df (pd.DataFrame): Input DataFrame to generate the heatmap.
-    - output_file (str): File name for saving the heatmap (default: 'correlation_heatmap.png').
-    """
     # Filter out non-numeric columns
     numeric_df = df.select_dtypes(include=['number'])
 
     # Ensure there are numeric columns
     if numeric_df.shape[1] < 2:
-        raise ValueError(
-            "DataFrame must contain at least two numeric columns for correlation analysis.")
+        raise ValueError("DataFrame must contain at least two numeric columns for correlation analysis.")
 
     # Calculate the correlation matrix
     corr_matrix = numeric_df.corr()
@@ -214,8 +186,7 @@ def generate_correlation_heatmap(df, output_dir, output_file='correlation_heatma
     # Determine the size of the heatmap dynamically
     num_columns = corr_matrix.shape[1]
     max_size = 16  # Maximum figure size in inches to prevent rendering issues
-    figsize = (min(max_size, num_columns * 1.2),
-               min(max_size, num_columns * 1.2))
+    figsize = (min(max_size, num_columns * 1.2),min(max_size, num_columns * 1.2))
 
     # Create the heatmap
     plt.figure(figsize=figsize)
@@ -232,7 +203,7 @@ def generate_correlation_heatmap(df, output_dir, output_file='correlation_heatma
 def data_story(df):
     summary_stats = df.describe().to_dict()
     try:
-        data_story = llm(f"Suppose you are a data analyst trying to generate a compelling story about a dataset. Use the following summary statistics to generate a short data story: {summary_stats}. Do not format the output.")  # noqa
+        data_story = llm(f"Suppose you are a data analyst trying to generate a compelling story about a dataset. Use the following summary statistics to generate a short data story: {summary_stats}. Do not format the output.")  
         return data_story
     except Exception as e:
         print(e)
@@ -242,7 +213,7 @@ def data_story(df):
 def create_md(filename):
     file_name, folder_path, file_path = configure_folder(filename)
     df = read_file(file_path)
-    ai_summary, summary_stats, missing_table, duplicate_rows, outlier_counts = generic_analysis(df)  # noqa
+    ai_summary, summary_stats, missing_table, duplicate_rows, outlier_counts = generic_analysis(df)  
     outlier_files = plot_outliers(df, folder_path)
     heatmap_file = generate_correlation_heatmap(df, folder_path)
     story = data_story(df)
@@ -262,8 +233,7 @@ def create_md(filename):
             f.write(f"|{item}|{outlier_counts[item]}|\n")
         f.write('<div style="display: flex; flex-wrap: wrap; width: 120%;">\n')
         for image in outlier_files:
-            f.write(f'<img src="{image.replace(" ", "_").lower(
-            )}" width="80%" style="margin-right: 10px; margin-bottom: 10px"/>\n')
+            f.write(f'<img src="{image.replace(" ", "_").lower()}" width="80%" style="margin-right: 10px; margin-bottom: 10px"/>\n')
         f.write('</div>\n')
         f.write(' \n')
         f.write("## Correlation Heatmap\n")
