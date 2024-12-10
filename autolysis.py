@@ -1,14 +1,14 @@
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "chardet",
-#     "matplotlib",
-#     "pandas",
-#     "python-dotenv",
-#     "requests",
-#     "seaborn",
-# ]
-# ///
+    # /// script
+    # requires-python = ">=3.12"
+    # dependencies = [
+    #     "chardet",
+    #     "matplotlib",
+    #     "pandas",
+    #     "python-dotenv",
+    #     "requests",
+    #     "seaborn",
+    # ]
+    # ///
 
 
 import os
@@ -260,5 +260,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python autolysis.py <filename>")
         sys.exit(1)
-    filename = sys.argv[1]
-    create_md(filename)
+    filename = sys.argv[1:]
+    if len(filename) == 1:
+        create_md(filename[0])
+    else:
+        for file in filename:
+            create_md(file)
