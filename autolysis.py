@@ -139,10 +139,11 @@ def plot_outliers(df, output_dir, col_per_plot=4):
         for j, col in enumerate(columns[i:min(i + cols_per_plot, num_plots)]):
             if num_plots <= cols_per_plot:
                 sns.boxplot(y=df[col], ax=axes[j])
-                axes[j].set_title(col)
+                axes[j].set_title(f"Outlier plot for {col}")
             else:
                 sns.boxplot(y=df[col], ax=axes[j])
-                axes[j].set_title(col)
+                axes[j].set_title(f"Outlier plot for {col}")
+            plt.suptitle("Outliers for Columns")
         plt.tight_layout()
         plt.savefig(f"{output_dir}/outliers_{i//cols_per_plot + 1}.png")
         files.append(f"outliers_{i//cols_per_plot + 1}.png")
@@ -191,7 +192,7 @@ def generate_correlation_heatmap(df, output_dir, output_file='correlation_heatma
     # Create the heatmap
     plt.figure(figsize=figsize)
     sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', cbar=True)
-
+    plt.title("Correlation Heatmap")
     # Save the heatmap
     output_location = os.path.join(output_dir, output_file)
     plt.savefig(output_location, dpi=300, bbox_inches='tight')
