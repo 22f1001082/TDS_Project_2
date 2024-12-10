@@ -262,7 +262,8 @@ if __name__ == "__main__":
         sys.exit(1)
     filename = sys.argv[1:]
     if len(filename) == 1:
-        create_md(filename[0])
+        if filename[0][-4:] == ".csv":
+            create_md(filename[0])
     else:
         for file in filename:
             if file[-4:] == ".csv":
