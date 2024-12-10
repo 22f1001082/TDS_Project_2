@@ -25,7 +25,7 @@ load_dotenv()
 
 
 def llm(message):
-    AI_TOKEN = os.environ["AIPROXY_TOKEN"]
+    AI_TOKEN = os.getenv("AIPROXY_TOKEN")
     headers = {"Authorization": f"Bearer {AI_TOKEN}", "Content-Type": "application/json"}  
     data = {
         "model": "gpt-4o-mini",
