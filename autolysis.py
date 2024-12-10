@@ -197,7 +197,6 @@ def generate_correlation_heatmap(df, output_dir, output_file='correlation_heatma
     output_location = os.path.join(output_dir, output_file)
     plt.savefig(output_location, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"Correlation heatmap saved as {output_file}")
     return output_file
 
 
@@ -207,7 +206,7 @@ def data_story(df):
         data_story = llm(f"Suppose you are a data analyst trying to generate a compelling story about a dataset. Use the following summary statistics to generate a short data story: {summary_stats}. Do not format the output.")  
         return data_story
     except Exception as e:
-        print(e)
+        print(f"Error: {e}")
         return None
     
 def recommended_analysis(df):
@@ -253,6 +252,7 @@ def create_md(filename):
         f.write(f"{analysis_recommendation}\n")
         f.write("## Data Story\n")
         f.write(f"{story}\n")
+    print("README.md created successfully.")
     os.remove(file_path)
 
 
@@ -264,7 +264,11 @@ if __name__ == "__main__":
     if len(filename) == 1:
         if filename[0][-4:] == ".csv":
             create_md(filename[0])
+        else:
+            print("Please provide a valid CSV file.")
     else:
         for file in filename:
             if file[-4:] == ".csv":
                 create_md(file)
+            else:
+                print("Please provide a valid CSV file.")
