@@ -260,15 +260,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python autolysis.py <filename>")
         sys.exit(1)
-    filename = sys.argv[1:]
-    if len(filename) == 1:
-        if filename[0][-4:] == ".csv":
-            create_md(filename[0])
+    filename = sys.argv
+    for file in filename:
+        if file[-4:] == ".csv":
+            create_md(file)
         else:
-            print("Please provide a valid CSV file.")
-    else:
-        for file in filename:
-            if file[-4:] == ".csv":
-                create_md(file)
-            else:
-                print("Please provide a valid CSV file.")
+            print(f"{file} Not a CSV file.")
