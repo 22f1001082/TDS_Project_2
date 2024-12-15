@@ -7,6 +7,7 @@
 #     "python-dotenv",
 #     "requests",
 #     "seaborn",
+#     "tenacity",
 # ]
 # ///
 
@@ -20,24 +21,51 @@ import chardet
 from dotenv import load_dotenv
 import pandas as pd
 import matplotlib.pyplot as plt
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
 load_dotenv()
 
 
+class APICallError(Exception):
+    pass
+
+# Define the retry decorator to retry up to 3 times with a 2-second wait in between retries
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_fixed(2),
+    retry=retry_if_exception_type((requests.exceptions.RequestException, APICallError))
+)
+def send_request_with_retry(headers, data):
+    response = requests.post(
+        "https://aiproxy.sanand.workers.dev/openai/v1/chat/completions",
+        headers=headers,
+        json=data
+    )
+    # Raise an exception if the response status code is not 200
+    if response.status_code != 200:
+        raise APICallError(f"API call failed with status code {response.status_code}: {response.text}")
+
+    return response.json()
+
 def llm(message):
     AI_TOKEN = os.getenv("AIPROXY_TOKEN")
-    headers = {"Authorization": f"Bearer {AI_TOKEN}", "Content-Type": "application/json"}  
+    if not AI_TOKEN:
+        print("Error: AIPROXY_TOKEN environment variable is not set.")
+        sys.exit(1)
+
+    headers = {"Authorization": f"Bearer {AI_TOKEN}", "Content-Type": "application/json"}
     data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": message}]
     }
+
     try:
-        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-        response_json = response.json()
+        response_json = send_request_with_retry(headers, data)
         return response_json["choices"][0]["message"]["content"]
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+    except (requests.exceptions.RequestException, APICallError) as e:
+        print(f"Error: API call failed after maximum retry attempts. {e}")
+        return None
+
 
 
 def configure_folder(filename):
